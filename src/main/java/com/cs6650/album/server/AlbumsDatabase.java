@@ -38,15 +38,16 @@ public class AlbumsDatabase {
         }
     }
 
-    public int insertNewAlbum(AlbumInfo albumInfo) throws SQLException {
+    public int insertNewAlbum(AlbumInfo albumInfo, long imageSize) throws SQLException {
         try (Connection con = getRemoteConnection()) {
 
             // Step 1: Insert the album
-            String insertSQL = "INSERT INTO album_info (artist, title, year) VALUES (?, ?, ?)";
+            String insertSQL = "INSERT INTO album_info (artist, title, year, image_size) VALUES (?,?, ?, ?)";
             try (PreparedStatement stmt = con.prepareStatement(insertSQL)) {
                 stmt.setString(1, albumInfo.getArtist());
                 stmt.setString(2, albumInfo.getTitle());
                 stmt.setString(3, albumInfo.getYear());
+                stmt.setLong(3, imageSize);
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -88,21 +89,25 @@ public class AlbumsDatabase {
         if (con != null) {
             DatabaseMetaData metaData = con.getMetaData();
             ResultSet tables = metaData.getTables(null, null, "album_info", null);
-            if (!tables.next()) {
-                PreparedStatement stmt = con.prepareStatement(
-                        "CREATE TABLE album_info (" +
-                                "album_id INT NOT NULL AUTO_INCREMENT, " +
-                                "artist VARCHAR(255) NOT NULL, " +
-                                "title VARCHAR(255) NOT NULL, " +
-                                "year VARCHAR(4) NOT NULL, " +
-                                "PRIMARY KEY (album_id));"
-
-                );
-                stmt.execute();
-                logger.info("Created table album_info.");
+            if (tables.next()) {
+                PreparedStatement dropStmt = con.prepareStatement("DROP TABLE album_info;");
+                dropStmt.execute();
+                logger.info("Dropped existing table album_info.");
             }
+            PreparedStatement stmt = con.prepareStatement(
+                "CREATE TABLE album_info (" +
+                    "album_id INT NOT NULL AUTO_INCREMENT, " +
+                    "artist VARCHAR(255) NOT NULL, " +
+                    "title VARCHAR(255) NOT NULL, " +
+                    "year VARCHAR(4) NOT NULL, " +
+                    "image_size BIGINT NOT NULL, " +
+                    "PRIMARY KEY (album_id));"
+            );
+            stmt.execute();
+            logger.info("Created table album_info.");
+
         }
-    }
+        }
 
     private static Connection getRemoteConnection() {
 //        if (System.getProperty("RDS_HOSTNAME") != null) {

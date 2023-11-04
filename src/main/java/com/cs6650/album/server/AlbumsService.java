@@ -42,7 +42,7 @@ public class AlbumsService {
     }
 
 
-    public String doPostNewAlbum(AlbumInfo albumInfo) throws IOException {
+    public String doPostNewAlbum(AlbumInfo albumInfo, long imageSize) throws IOException {
 //        String newAlbumId = String.valueOf(albumId.getAndIncrement());
 ////        logger.info("New album id: " + newAlbumId);
 //
@@ -50,7 +50,7 @@ public class AlbumsService {
 //        albumInfos.put(newAlbumId, albumInfo);
 //        return newAlbumId;
         try {
-            int newAlbumId = albumsDatabase.insertNewAlbum(albumInfo);
+            int newAlbumId = albumsDatabase.insertNewAlbum(albumInfo, imageSize);
             return String.valueOf(newAlbumId);
         } catch (SQLException e) {
             logger.error("Failed to insert new album into database.", e);

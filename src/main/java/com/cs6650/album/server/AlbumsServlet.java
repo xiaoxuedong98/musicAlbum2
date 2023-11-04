@@ -113,7 +113,7 @@ public class AlbumsServlet extends HttpServlet {
         AlbumInfo profile = gson.fromJson(profileData, AlbumInfo.class);
 
         // Store the album profile
-        String albumId = albumsService.doPostNewAlbum(profile);
+        String albumId = albumsService.doPostNewAlbum(profile, imageSize);
 
         ImageMetaData imagedata = new ImageMetaData(albumId, String.valueOf(imageSize));
         String responseStr = gson.toJson(imagedata);
